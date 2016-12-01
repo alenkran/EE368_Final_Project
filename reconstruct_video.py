@@ -1,3 +1,8 @@
+# Filename: reconstruct_video.py
+# Description: Contains functions to reconstruct the series/surface
+# from the lower dimensional data.
+# Authors: Christian Choe, Min Cheol Kim
+
 import networkx as nx
 import numpy as np
 
@@ -55,7 +60,7 @@ def greedy_reconstruct_frame_order(iso_result):
         distances[pair2, pair1] = np.nan
     return final_order
 
-def graph_reconstruct_frame_order(iso_result):
+def get_minimum_spanning_tree(iso_result):
     num_frames, num_components = iso_result.shape
 
     # Compute full (duplicated distance matrix)
@@ -64,25 +69,27 @@ def graph_reconstruct_frame_order(iso_result):
         for fr2 in range(num_frames):
             distances[fr1, fr2] = np.linalg.norm(iso_result[fr1,] - iso_result[fr2,])
 
+    # Construct the graph/get minimum spanning tree
     G = nx.from_numpy_matrix(distances)
-    #G = nx.minimum_spanning_tree(G)
+    G = nx.minimum_spanning_tree(G)
     return G
 
-def hamilton(G):
-    F = [(G,[G.nodes()[0]])]
-    n = G.number_of_nodes()
-    while F:
-        graph,path = F.pop()
-        confs = []
-        for node in graph.neighbors(path[-1]):
-            conf_p = path[:]
-            conf_p.append(node)
-            conf_g = nx.Graph(graph)
-            conf_g.remove_node(path[-1])
-            confs.append((conf_g,conf_p))
-        for g,p in confs:
-            if len(p)==n:
-                return p
-            else:
-                F.append((g,p))
-    return F
+def get_path_from_MSP(minG):
+    best_path_len = -1
+    best_path = []
+    degrees = minG.degree()
+    leaves = [key for key,value in degrees.iteritems() if value == 1]
+    num_leaves = len(leaves)
+    for src in range(num_leaves):
+        for snk in range(src, num_leaves):
+            for path in nx.all_simple_paths(minG, source=src, target=snk):
+                if len(path) > best_path_len:
+                    best_path_len = len(path)
+                    best_path = path
+    return best_path
+
+def save_new_trajectory(md_obj, order, filename):
+    temp = md_obj.xyz
+    temp = temp[order, :, :]
+    md_obj.xyz = temp
+    md_obj.save_dcd(filename)
