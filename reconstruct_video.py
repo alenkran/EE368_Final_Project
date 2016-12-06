@@ -79,9 +79,8 @@ def get_path_from_MSP(minG):
     best_path = []
     degrees = minG.degree()
     leaves = [key for key,value in degrees.iteritems() if value == 1]
-    num_leaves = len(leaves)
-    for src in range(num_leaves):
-        for snk in range(src, num_leaves):
+    for idx, src in enumerate(leaves):
+        for snk in leaves[idx + 1:]:
             for path in nx.all_simple_paths(minG, source=src, target=snk):
                 if len(path) > best_path_len:
                     best_path_len = len(path)
