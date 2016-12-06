@@ -34,7 +34,7 @@ def cube_simulation(dt, frames, sigma = -1):
     return np.array(video)
 
 def make_moving_square(frames, sigma = -1):
-    square = np.ones((100,100))
+    square = np.ones((100,100))*255
     empty = np.zeros((200,100))
     square = np.concatenate((empty,square,empty), axis=0)
     video = []
@@ -47,11 +47,11 @@ def make_moving_square(frames, sigma = -1):
         if sigma > 0:
             img += np.random.normal(0, sigma, (500, 500))
         
-        video.append(img)
-    return video
+        video.append(np.round(img))
+    return np.array(video)
 
 def make_rotating_square(frames,percent,theta, sigma = -1):
-    square = np.ones((100,100))
+    square = np.ones((100,100))*255
     empty = np.zeros((200,100))
     square = np.concatenate((empty,square,empty), axis=0)
     idt = percent
@@ -67,8 +67,9 @@ def make_rotating_square(frames,percent,theta, sigma = -1):
         if sigma > 0:
             img += np.random.normal(0, sigma, (500, 500))
         
-        video.append(img)
-    return video
+        img = np.absolute(img)
+        video.append(np.around(img))
+    return np.array(video)
 
 def format_obervation_md_traj(t):
     size =  t.xyz.shape
