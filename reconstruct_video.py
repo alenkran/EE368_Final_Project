@@ -5,6 +5,7 @@
 
 import networkx as nx
 import numpy as np
+import copy as cp
 
 def greedy_reconstruct_frame_order(iso_result):
     num_frames, num_components = iso_result.shape
@@ -87,8 +88,10 @@ def get_path_from_MSP(minG):
                     best_path = path
     return best_path
 
-def save_new_trajectory(md_obj, order, filename):
-    temp = md_obj.xyz
-    temp = temp[order, :, :]
-    md_obj.xyz = temp
+def get_reconstructed_traj(shuffled_traj, order):
+    copy = cp.deepcopy(shuffled_traj)
+    copy.xyz = shuffled_traj.xyz[order, :, :]
+    return copy
+
+def save_new_trajectory(md_obj, filename):
     md_obj.save_dcd(filename)
