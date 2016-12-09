@@ -32,7 +32,7 @@ def make_match_matrix(num):
             if i == j:
                 match[i,j] = 1
             else:
-                match[i,j] = 1 - np.absolute(i-j)/float(10)
+                match[i,j] = 0
     return match
 
 # Function: Create the matrix M, Ix, and Iy
@@ -191,3 +191,9 @@ def seq_align(seq_A, seq_B, align_type, open_gap_penalty, extend_gap_penality):
     #do global or local alignment
     result = get_score(seq_A, seq_B, matrix, x - 1, y - 1, align_type)
     return result
+
+def calculate_frame_alignment_score(seq_A, seq_B, align_type, open_gap_penalty, extend_gap_penalty):
+    score_fwd = seq_align(seq_A, seq_B, align_type, open_gap_penalty, extend_gap_penalty)
+    seq_B = np.fliplr([np.array(seq_B)])[0]
+    score_rev = seq_align(seq_A, seq_B, align_type, open_gap_penalty, extend_gap_penalty)
+    return np.amax([score_fwd, score_rev])
